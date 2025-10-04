@@ -29,7 +29,6 @@ while q:
 
     if '_' not in slovo:
         print('вы победили')
-        break
 
 if q == 0:
     print('игра окончена')
