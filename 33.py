@@ -1,4 +1,4 @@
-from random import *
+from random import * # вы
 
 q = 1
 us = 0
