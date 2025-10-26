@@ -42,7 +42,6 @@ class Dragon(Herro):
 
 
 
-
 her = Herro(90, -1000, 5)
 drag = Dragon(1000, 100000, 20)
 
