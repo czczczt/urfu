@@ -27,6 +27,14 @@ class Herro:
     def apple(self):
         return Herro(self.hp+30, self.gold-2500, self.damage)
 
+    def slot(self):
+        w = randint(1, 10)
+        if w % 2 == 0:
+            return Herro(self.hp, self.gold+10000, self.damage)
+        if w % 2 != 0:
+            return Herro(self.hp, self.gold-10000, self.damage)
+        
+
 class Dragon(Herro):
     def __init__(self, hp, gold, damage):
         self.hp = hp
@@ -52,7 +60,7 @@ print('')
 
 p = 1
 sportiki = 0
-commands = ['kick', 'work', 'shop']
+commands = ['kick', 'work', 'shop', 'slot']
 shopl = {'apple':2500, 'sword':15000}
 live = 1
 
@@ -79,6 +87,9 @@ while p:
 
     if action == 'buy apple':
         her = her.apple()
+        
+    if action == 'slot':
+        her = her.slot()
 
     if action == 'kick' and drag.hp > 0:
         drag, her = her.kick(drag)
