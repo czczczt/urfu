@@ -1,3 +1,5 @@
+# было лень доделывать
+
 from datetime import *
 
 def addd(bb, cc, dd, goods):
