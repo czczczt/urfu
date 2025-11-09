@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>X-wing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  body {
+    background: #0a0a16;
+    color: #ffe81f;
+    font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 30px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .logo {
+    font-size: 3rem;
+    color: #ffe81f;
+    text-shadow: 0 0 11px rgba(255, 232, 31, 0.45);
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    font-size: 1.1rem;
+    color: #a0a0ff;
+    margin: 12px 0 44px 0;
+  }
+  .character-card {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 50px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .character-info {
+    min-width: 330px;
+  }
+  .section-title {
+    font-size: 1.3rem;
+    color: #ffe81f;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 16px 32px;
+  }
+  .info-card {
+    background: rgba(20, 20, 40, 0.73);
+    border-radius: 7px;
+    border: 1px solid #393976;
+    padding: 16px;
+    min-width: 120px;
+    box-shadow: 0 1px 6px #2224;
+  }
+  .info-label {
+    font-size: 0.75rem;
+    color: #a0a0ff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .info-value {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .sections-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 44px;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+  }
+  .section-title-2 {
+    color: #ffe81f;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 13px;
+    letter-spacing: 1px;
+    margin-left: 2px;
+  }
+  .items-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .item-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(20, 20, 40, 0.8);
+    border: 1px solid #ffe81f;
+    border-radius: 7px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 7px 10px rgba(16, 16, 20, 0.7);
+    transition: all 0.2s;
+    cursor: pointer;
+    max-width: 340px;
+  }
+  .item-btn:hover {
+    background: #ffe81f;
+    color: #1a1a3a;
+    border-color: #ffd800;
+    box-shadow: 0 4px 18px #ffe81f33;
+    transform: translateY(-2px) scale(1.045);
+  }
+  .item-icon {
+    font-size: 1.4rem;
+    color: #ffe81f;
+    min-width: 30px;
+  }
+  footer {
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 80px;
+    border-top: 1px solid #272754;
+    color: #a0a0ff;
+    font-size: 0.9rem;
+  }
+  .rebel-badge {
+    display: inline-block;
+    padding: 7px 17px;
+    background: rgba(255, 232, 31, 0.11);
+    border: 1px solid #ffe81f;
+    border-radius: 17px;
+    margin-top: 10px;
+  }
+  @media (max-width: 900px) {
+    .character-card {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  @media (max-width: 600px) {
+    .container {
+      padding: 10px 2px 0 2px;
+    }
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 12px 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">STAR WARS</div>
+      <div class="subtitle">X-wing</div>
+    </header>
+    <div class="character-card">
+      <div class="character-info">
+        <h1 class="section-title">X-wing</h1>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Длина</div>
+            <div class="info-value">12.5</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Экипаж</div>
+            <div class="info-value">1</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Пассажиры</div>
+            <div class="info-value">0</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Макс. скорость</div>
+            <div class="info-value">1050</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Грузоподъемность</div>
+            <div class="info-value">110</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Модель</div>
+            <div class="info-value">T-65 X-wing</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Класс</div>
+            <div class="info-value">Starfighter</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <div class="section-title">Дополнительная информация</div>
+        <div class="info-grid" style="max-width: 500px; margin: 0 auto;">
+            <div class="info-card">
+                <div class="info-label">Производитель</div>
+                <div class="info-value">Incom Corporation</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Стоимость</div>
+                <div class="info-value">149999</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Расходники</div>
+                <div class="info-value">1 week</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Гиперпривод</div>
+                <div class="info-value">1.0</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">MGLT</div>
+                <div class="info-value">100</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
