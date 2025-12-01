@@ -11,7 +11,7 @@ def all_characters(request):
 
 
 def character_detail(request, pk):
-    character = get_object_or_404(Author, pk=pk)
+    character = Author.objects.get(pk=pk)
     starships = character.starships.all()
     context = {
         'character': character,
@@ -20,8 +20,9 @@ def character_detail(request, pk):
     return render(request, 'all/character_detail.html', context)
 
 
+
 def starship_detail(request, pk):
-    starship = get_object_or_404(Starships, pk=pk)
+    starship = Starships.objects.get(pk=pk)
     pilots = starship.pilots.all()
     context = {
         'starship': starship,
