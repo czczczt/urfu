@@ -16,7 +16,7 @@ class Author(models.Model):
 
 class Starships(models.Model):
     name = models.CharField(max_length=100)
-    model = models.CharField(max_length=100, blank=True)
+    model = models.CharField(max_length=100, blank=True) # поле может быть пустым
     manufacturer = models.CharField(max_length=100)
     cost_in_credits = models.IntegerField()
     length = models.FloatField()

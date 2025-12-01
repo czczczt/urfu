@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from .models import Author, Starships
 
 
@@ -18,7 +18,6 @@ def character_detail(request, pk):
         'starships': starships,
     }
     return render(request, 'all/character_detail.html', context)
-
 
 
 def starship_detail(request, pk):
