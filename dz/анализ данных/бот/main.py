@@ -5,6 +5,7 @@ import PyPDF2
 from dotenv import load_dotenv
 import os
 
+
 def load_pdf(filename):
     text = ""
     with open(filename, 'rb') as file:
