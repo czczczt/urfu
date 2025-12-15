@@ -60,6 +60,7 @@ PROMPT = f"""Ты - преподаватель ВУЗА по специальн�
 
 bot = telebot.TeleBot(token)
 
+giga = GigaChat(credentials=giga_token, verify_ssl_certs=False)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -69,14 +70,13 @@ def start_message(message):
 
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    with GigaChat(credentials=giga_token, verify_ssl_certs=False) as giga:
-        payload = Chat(
-            messages=[
-                Messages(role=MessagesRole.SYSTEM, content=PROMPT),
-                Messages(role=MessagesRole.USER, content=message.text)
-            ]
-        )
-        response = giga.chat(payload)
+    payload = Chat(
+        messages=[
+            Messages(role=MessagesRole.SYSTEM, content=PROMPT),
+            Messages(role=MessagesRole.USER, content=message.text)
+        ]
+    )
+    response = giga.chat(payload)
 
     bot.reply_to(message, response.choices[0].message.content, parse_mode='Markdown')
 
