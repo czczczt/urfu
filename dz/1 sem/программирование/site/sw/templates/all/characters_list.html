@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все персонажи</title>
+    <style>
+        :root {
+            --color-bg-primary: #FCFCF9;
+            --color-text-primary: #13343B;
+            --color-card: #FFFFFF;
+            --color-accent: #21808D;
+            --radius-base: 8px;
+            --space-16: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+        }
+        body {
+            margin: 0;
+            background: var(--color-bg-primary);
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--color-text-primary);
+        }
+        h1 {
+            text-align: center;
+            margin-top: var(--space-16);
+            color: var(--color-accent);
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: var(--space-16);
+        }
+        .card {
+            background: var(--color-card);
+            border-radius: var(--radius-base);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-16);
+            padding: var(--space-16);
+            transition: box-shadow 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 10px rgba(33, 128, 141, 0.15);
+        }
+        .character-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .character-link {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+        .character-link:hover {
+            text-decoration: underline;
+        }
+        .character-info {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <h1>⭐ Все персонажи вселенной Star Wars</h1>
+    <div class="container">
+        {% for character in characters %}
+        <div class="card">
+            <div class="character-name">
+                <a href="{% url 'character_detail' character.pk %}" class="character-link">{{ character.name }}</a>
+            </div>
+            <div class="character-info">
+                {% if character.height %}
+                <p><strong>Рост:</strong> {{ character.height }} см</p>
+                {% endif %}
+                {% if character.mass %}
+                <p><strong>Масса:</strong> {{ character.mass }} кг</p>
+                {% endif %}
+                {% if character.gender %}
+                <p><strong>Пол:</strong> {{ character.gender }}</p>
+                {% endif %}
+                {% if character.hair_color %}
+                <p><strong>Цвет волос:</strong> {{ character.hair_color }}</p>
+                {% endif %}
+                {% if character.eye_color %}
+                <p><strong>Цвет глаз:</strong> {{ character.eye_color }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>Персонажи не найдены</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
