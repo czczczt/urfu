@@ -1,4 +1,4 @@
-# api.env:
+# base.pdf + api.env:
 # TELEGRAM=
 # LLM=
 
