@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ starship.name }}</title>
+    <style>
+        :root {
+            --color-bg-primary: #FCFCF9;
+            --color-text-primary: #13343B;
+            --color-card: #FFFFFF;
+            --color-accent: #21808D;
+            --radius-base: 8px;
+            --space-16: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+        }
+        body {
+            margin: 0;
+            background: var(--color-bg-primary);
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--color-text-primary);
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: var(--space-16);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        h1 {
+            margin: 0;
+            color: var(--color-accent);
+            font-size: 28px;
+        }
+        .back-link {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .card {
+            background: var(--color-card);
+            border-radius: var(--radius-base);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-16);
+            padding: var(--space-16);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .info-item {
+            padding: 8px 0;
+        }
+        .info-label {
+            font-weight: 600;
+            color: var(--color-accent);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .info-value {
+            font-size: 16px;
+            margin-top: 4px;
+        }
+        h2 {
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--color-accent);
+            font-size: 20px;
+        }
+        .pilot-link {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+        .pilot-link:hover {
+            text-decoration: underline;
+        }
+        .pilot-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(33, 128, 141, 0.05);
+            border-radius: var(--radius-base);
+            border-left: 3px solid var(--color-accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ starship.name }}</h1>
+            <a href="{% url 'all_characters' %}" class="back-link">← Назад</a>
+        </div>
+
+        <div class="card">
+            <h2>Технические характеристики</h2>
+            <div class="info-grid">
+                {% if starship.model %}
+                <div class="info-item">
+                    <div class="info-label">Модель</div>
+                    <div class="info-value">{{ starship.model }}</div>
+                </div>
+                {% endif %}
+                {% if starship.manufacturer %}
+                <div class="info-item">
+                    <div class="info-label">Производитель</div>
+                    <div class="info-value">{{ starship.manufacturer }}</div>
+                </div>
+                {% endif %}
+                {% if starship.starship_class %}
+                <div class="info-item">
+                    <div class="info-label">Класс</div>
+                    <div class="info-value">{{ starship.starship_class }}</div>
+                </div>
+                {% endif %}
+                {% if starship.length %}
+                <div class="info-item">
+                    <div class="info-label">Длина</div>
+                    <div class="info-value">{{ starship.length }} м</div>
+                </div>
+                {% endif %}
+                {% if starship.crew %}
+                <div class="info-item">
+                    <div class="info-label">Экипаж</div>
+                    <div class="info-value">{{ starship.crew }} человек</div>
+                </div>
+                {% endif %}
+                {% if starship.passengers %}
+                <div class="info-item">
+                    <div class="info-label">Пассажиры</div>
+                    <div class="info-value">{{ starship.passengers }}</div>
+                </div>
+                {% endif %}
+                {% if starship.max_atmosphering_speed %}
+                <div class="info-item">
+                    <div class="info-label">Макс. скорость</div>
+                    <div class="info-value">{{ starship.max_atmosphering_speed }} км/ч</div>
+                </div>
+                {% endif %}
+                {% if starship.cargo_capacity %}
+                <div class="info-item">
+                    <div class="info-label">Грузоподъемность</div>
+                    <div class="info-value">{{ starship.cargo_capacity }} т</div>
+                </div>
+                {% endif %}
+                {% if starship.hyperdrive_rating %}
+                <div class="info-item">
+                    <div class="info-label">Гипердвигатель</div>
+                    <div class="info-value">{{ starship.hyperdrive_rating }}</div>
+                </div>
+                {% endif %}
+                {% if starship.MGLT %}
+                <div class="info-item">
+                    <div class="info-label">MGLT</div>
+                    <div class="info-value">{{ starship.MGLT }}</div>
+                </div>
+                {% endif %}
+                {% if starship.cost_in_credits %}
+                <div class="info-item">
+                    <div class="info-label">Стоимость</div>
+                    <div class="info-value">{{ starship.cost_in_credits|floatformat:0 }} кредитов</div>
+                </div>
+                {% endif %}
+                {% if starship.consumables %}
+                <div class="info-item">
+                    <div class="info-label">Припасы на</div>
+                    <div class="info-value">{{ starship.consumables }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>👨‍✈️ Пилоты</h2>
+            {% if pilots %}
+                {% for pilot in pilots %}
+                <div class="pilot-item">
+                    <a href="{% url 'character_detail' pilot.pk %}" class="pilot-link">
+                        <strong>{{ pilot.name }}</strong>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #999;">Нет информации о пилотах</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

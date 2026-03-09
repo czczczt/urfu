@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Luke Skywalker</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  body {
+    background: #0a0a16;
+    color: #ffe81f;
+    font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 30px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .logo {
+    font-size: 3rem;
+    color: #ffe81f;
+    text-shadow: 0 0 11px rgba(255, 232, 31, 0.45);
+    letter-spacing: 2px;
+  }
+  .subtitle {
+    font-size: 1.1rem;
+    color: #a0a0ff;
+    margin: 12px 0 44px 0;
+  }
+  .character-card {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 50px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .character-info {
+    min-width: 330px;
+  }
+  .section-title {
+    font-size: 1.3rem;
+    color: #ffe81f;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 16px 32px;
+  }
+  .info-card {
+    background: rgba(20, 20, 40, 0.73);
+    border-radius: 7px;
+    border: 1px solid #393976;
+    padding: 16px;
+    min-width: 120px;
+    box-shadow: 0 1px 6px #2224;
+  }
+  .info-label {
+    font-size: 0.75rem;
+    color: #a0a0ff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .info-value {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .sections-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 44px;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+  }
+  .section-title-2 {
+    color: #ffe81f;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 13px;
+    letter-spacing: 1px;
+    margin-left: 2px;
+  }
+  .items-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .item-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(20, 20, 40, 0.8);
+    border: 1px solid #ffe81f;
+    border-radius: 7px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 7px 10px rgba(16, 16, 20, 0.7);
+    transition: all 0.2s;
+    cursor: pointer;
+    max-width: 340px;
+  }
+  .item-btn:hover {
+    background: #ffe81f;
+    color: #1a1a3a;
+    border-color: #ffd800;
+    box-shadow: 0 4px 18px #ffe81f33;
+    transform: translateY(-2px) scale(1.045);
+  }
+  .item-icon {
+    font-size: 1.4rem;
+    color: #ffe81f;
+    min-width: 30px;
+  }
+  footer {
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 80px;
+    border-top: 1px solid #272754;
+    color: #a0a0ff;
+    font-size: 0.9rem;
+  }
+  .rebel-badge {
+    display: inline-block;
+    padding: 7px 17px;
+    background: rgba(255, 232, 31, 0.11);
+    border: 1px solid #ffe81f;
+    border-radius: 17px;
+    margin-top: 10px;
+  }
+  @media (max-width: 900px) {
+    .character-card {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  @media (max-width: 600px) {
+    .container {
+      padding: 10px 2px 0 2px;
+    }
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 12px 0;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">STAR WARS</div>
+      <div class="subtitle">{{name}}</div>
+    </header>
+    <div class="character-card">
+      <div class="character-info">
+        <h1 class="section-title">{{name}}</h1>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Рост</div>
+            <div class="info-value">{{height}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Вес</div>
+            <div class="info-value">{{mass}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Цвет волос</div>
+            <div class="info-value">{{hair_color}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Цвет кожи</div>
+            <div class="info-value">{{skin_color}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Цвет глаз</div>
+            <div class="info-value">{{eye_color}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Год рождения</div>
+            <div class="info-value">{{birth_year}}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Пол</div>
+            <div class="info-value">{{gender}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <div class="section-title">Транспорт</div>
+        <div class="transport-list">
+            <div class="item-btn">
+                <span class="item-icon"><i class="fas fa-motorcycle"></i></span>
+                <a href="/sw/snowspeeder/">Snowspeeder</a>
+            </div>
+            <div class="item-btn">
+                <span class="item-icon"><i class="fas fa-space-shuttle"></i></span>
+                <a href="/sw/xwing/">Xwing</a>
+            </div>
+            <div class="item-btn">
+                <span class="item-icon"><i class="fas fa-space-shuttle"></i></span>
+                <a href="/sw/imperial-shuttle/">Imperial shuttle</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
