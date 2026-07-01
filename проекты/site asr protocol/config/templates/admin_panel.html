@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ПротоСов • Админ-панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-light: #e2e8f0;
+      --accent-soft: #a8b5c9;
+      --accent-wave: #8a9fb5;
+      --accent-focus: #6b7c93;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #c53030;
+      --success-bg: #f0fdf4;
+      --success-border: #86efac;
+      --success-text: #166534;
+      --shadow-soft: 0 4px 20px rgba(45, 55, 72, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(138, 159, 181, 0.25);
+      --shadow-hover: 0 8px 30px rgba(107, 124, 147, 0.25);
+      --input-bg: #fafbfc;
+      --stat-gradient: linear-gradient(145deg, var(--text-primary), var(--accent-focus));
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      padding: 32px 24px;
+    }
+
+    /* Фоновая волна — декоративный элемент */
+    .wave-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .wave-bg svg {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: scaleX(-1);
+    }
+
+    .wave-path {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-dasharray: 12 8;
+      animation: waveFlow 18s linear infinite;
+    }
+
+    @keyframes waveFlow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -200; }
+    }
+
+    .wave-bg .wave-path:nth-child(2) {
+      stroke: var(--accent-wave);
+      stroke-width: 1;
+      stroke-dasharray: 8 12;
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Хедер */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 8px 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: min(240px, 50vw);
+      height: auto;
+      max-height: 10 px;
+      object-fit: contain;
+    }
+
+    .brand h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand h1::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(to bottom, var(--accent-soft), var(--accent-wave));
+      border-radius: 2px;
+    }
+
+    .brand p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      margin-left: 14px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .header-btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .header-btn.danger {
+      color: var(--error-text);
+      border-color: var(--error-border);
+      background: var(--error-bg);
+    }
+
+    .header-btn.danger:hover {
+      background: var(--error-text);
+      color: #fff;
+      border-color: var(--error-text);
+    }
+
+    /* Сообщения */
+    .message {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid;
+    }
+
+    .message-success {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    .message-error {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    /* Сетка панелей */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* Карточка-панель */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 24px 28px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        var(--accent-soft) 0%, 
+        var(--accent-wave) 25%, 
+        var(--accent-focus) 50%, 
+        var(--accent-wave) 75%, 
+        var(--accent-soft) 100%);
+      opacity: 0.9;
+    }
+
+    .panel:hover {
+      border-color: var(--accent-soft);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 4px;
+    }
+
+    .panel h2::before {
+      content: '';
+      width: 3px;
+      height: 18px;
+      background: linear-gradient(to bottom, var(--accent-soft), var(--accent-wave));
+      border-radius: 2px;
+    }
+
+    /* Карточки метрик */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-soft);
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    .stat-card strong {
+      font-size: 28px;
+      font-weight: 700;
+      display: block;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      background: var(--stat-gradient);
+      background-clip: text;
+      -webkit-background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .stat-card span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .metric-list {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .metric-list li {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-light);
+    }
+
+    .metric-list li:last-child {
+      border-bottom: none;
+    }
+
+    .metric-list li span:first-child {
+      color: var(--text-secondary);
+    }
+
+    .metric-list li span:last-child {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: 'Manrope', monospace;
+    }
+
+    /* Таблица */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      margin: 0 -4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      background: var(--input-bg);
+      border-bottom: 2px solid var(--border-light);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--input-bg);
+    }
+
+    .btn-small {
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-small:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+    }
+
+    .btn-small.danger {
+      color: var(--error-text);
+      border-color: var(--error-border);
+      background: var(--error-bg);
+    }
+
+    .btn-small.danger:hover {
+      background: var(--error-text);
+      color: #fff;
+      border-color: var(--error-text);
+    }
+
+    td form {
+      display: inline-block;
+      margin-left: 8px;
+    }
+
+    td button {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--error-text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    td button:hover {
+      background: var(--error-text);
+      color: #fff;
+      border-color: var(--error-text);
+    }
+
+    /* Форма */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .form-row label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .form-row input, .form-row select {
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .form-row input:focus, .form-row select:focus {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+      background: #fff;
+    }
+
+    .form-row input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    .form-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent-focus);
+      cursor: pointer;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-primary);
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+
+    .checkbox-label input {
+      margin-top: 0;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+      transition-duration: 0.05s;
+    }
+
+    /* Футер-инфо */
+    .footer-info {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 12px 20px;
+    }
+
+    .footer-info span {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 10px 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .footer-info span::before {
+      color: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    /* Декоративные звуковые линии */
+    .sound-lines {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-light);
+    }
+
+    .sound-line {
+      width: 4px;
+      height: 14px;
+      background: linear-gradient(to top, var(--accent-soft), var(--accent-wave));
+      border-radius: 3px;
+      animation: soundWave 2.4s ease-in-out infinite;
+      opacity: 0.75;
+    }
+
+    .sound-line:nth-child(2) { animation-delay: -0.4s; height: 20px; }
+    .sound-line:nth-child(3) { animation-delay: -0.8s; height: 28px; }
+    .sound-line:nth-child(4) { animation-delay: -1.2s; height: 20px; }
+    .sound-line:nth-child(5) { animation-delay: -1.6s; height: 14px; }
+
+    @keyframes soundWave {
+      0%, 100% { transform: scaleY(1); opacity: 0.65; }
+      50% { transform: scaleY(1.7); opacity: 1; }
+    }
+
+    /* Маленький декоративный элемент в углу карточки */
+    .card-corner {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .card-corner svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .corner-wave {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      animation: cornerPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.4; stroke-dashoffset: 0; }
+      50% { opacity: 0.8; stroke-dashoffset: -10; }
+    }
+
+    /* Статус-индикаторы в таблице */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-badge.active {
+      background: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .status-badge.inactive {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Анимация появления */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel {
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .panel:nth-child(2) { animation-delay: 0.1s; }
+    .panel:nth-child(3) { animation-delay: 0.2s; }
+    .panel:nth-child(4) { animation-delay: 0.3s; }
+
+    /* Адаптивность */
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      body {
+        padding: 24px 16px;
+      }
+      .panel {
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .brand {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .brand p {
+        margin: 0;
+      }
+      .top-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .footer-info {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Кастомный скролл */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-soft);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-wave);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фоновые декоративные волны -->
+  <div class="wave-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave-path" d="M0,0 C150,40 350,20 600,30 C850,40 1050,10 1200,25 L1200,120 L0,120 Z" />
+      <path class="wave-path" d="M0,20 C200,60 400,30 600,45 C800,60 1000,25 1200,40 L1200,120 L0,120 Z" />
+    </svg>
+  </div>
+
+  <div class="page">
+    <div class="header">
+      <div class="brand">
+        <img src="{% static 'logo.svg' %}" alt="ПротоСов" class="brand-logo">
+        <div>
+          <h1>Админ-панель</h1>
+          <p>Управление инфраструктурой и мониторинг</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a href="{% url 'main' %}" class="header-btn">Главная</a>
+        <a href="{% url 'history' %}" class="header-btn">История</a>
+        <a href="/admin" class="header-btn">Django admin</a>
+        <a href="{% url 'logout' %}" class="header-btn danger">Выйти</a>
+      </div>
+    </div>
+
+    <!-- Динамические сообщения -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="message {% if message.tags == 'success' %}message-success{% else %}message-error{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="grid">
+      <!-- Левая панель: метрики сервера -->
+      <div class="panel">
+        <!-- Декоративный уголок -->
+        <div class="card-corner" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <path class="corner-wave" d="M5,35 Q20,20 35,5" />
+          </svg>
+        </div>
+
+        <h2>Мониторинг сервиса</h2>
+        <div class="cards">
+          <div class="stat-card">
+            <strong>{% if metrics.cpu_percent is not None %}{{ metrics.cpu_percent|floatformat:1 }}%{% else %}—{% endif %}</strong>
+            <span>CPU</span>
+          </div>
+          <div class="stat-card">
+            <strong>{% if metrics.memory_percent is not None %}{{ metrics.memory_percent|floatformat:1 }}%{% else %}—{% endif %}</strong>
+            <span>ОЗУ</span>
+          </div>
+          <div class="stat-card">
+            <strong>{% if metrics.disk_percent is not None %}{{ metrics.disk_percent|floatformat:0 }}%{% else %}—{% endif %}</strong>
+            <span>Диск</span>
+          </div>
+          <div class="stat-card">
+            <strong>{{ metrics.celery_workers }}</strong>
+            <span>Celery</span>
+          </div>
+        </div>
+        <ul class="metric-list">
+          <li><span>Платформа</span><span>{{ metrics.platform }}</span></li>
+          <li><span>Время работы</span><span>{{ metrics.uptime_human }}</span></li>
+          <li><span>Всего процессов</span><span>{% if metrics.process_count is not None %}{{ metrics.process_count }}{% else %}—{% endif %}</span></li>
+          <li><span>Память</span><span>{{ metrics.memory_used_human }} / {{ metrics.memory_total_human }}</span></li>
+          <li><span>Диск</span><span>{{ metrics.disk_used_human }} / {{ metrics.disk_total_human }}</span></li>
+        </ul>
+      </div>
+
+      <!-- Правая панель: статистика -->
+      <div class="panel">
+        <div class="card-corner" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <path class="corner-wave" d="M5,35 Q20,20 35,5" />
+          </svg>
+        </div>
+
+        <h2>Состояние системы</h2>
+        <div class="cards">
+          <div class="stat-card"><strong>{{ stats.total_users }}</strong><span>Пользователей</span></div>
+          <div class="stat-card"><strong>{{ stats.active_users }}</strong><span>Активных</span></div>
+          <div class="stat-card"><strong>{{ stats.admin_users }}</strong><span>Админов</span></div>
+          <div class="stat-card"><strong>{{ stats.total_files }}</strong><span>Файлов</span></div>
+        </div>
+        <ul class="metric-list">
+          <li><span>Транскрибаций всего</span><span>{{ stats.total_transcriptions }}</span></li>
+          <li><span>В ожидании</span><span>{{ stats.pending_transcriptions }}</span></li>
+          <li><span>Обрабатываются</span><span>{{ stats.processing_transcriptions }}</span></li>
+          <li><span>С ошибкой</span><span>{{ stats.failed_transcriptions }}</span></li>
+          <li><span>Протоколируется</span><span>{{ stats.protocol_processing }}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Таблица пользователей -->
+    <div class="panel">
+      <div class="card-corner" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <path class="corner-wave" d="M5,35 Q20,20 35,5" />
+        </svg>
+      </div>
+
+      <h2>Управление пользователями</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Логин</th>
+              <th>Роль</th>
+              <th>Активен</th>
+              <th>Последняя активность</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td><strong>{{ user.login }}</strong></td>
+              <td>
+                <span class="status-badge {% if user.role == 'a' or user.role == 'ua' or user.is_superuser %}active{% endif %}">
+                  {{ user.get_role_display }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                  <span class="status-dot"></span>
+                  {% if user.is_active %}Да{% else %}Нет{% endif %}
+                </span>
+              </td>
+              <td>{{ user.last_activity_datetime|date:"d.m.Y H:i"|default:"—" }}</td>
+              <td>
+                <a href="{% url 'admin_user_edit' user.id %}" class="btn-small">✎ Изменить</a>
+                {% if user.is_active and user.id != request.user.id %}
+                <form method="POST" action="{% url 'admin_user_delete' user.id %}" style="display:inline" onsubmit="return confirm('Отключить пользователя?')">
+                  {% csrf_token %}
+                  <button type="submit">⊘ Откл.</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                Пользователи не найдены
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Форма создания пользователя -->
+    <div class="panel">
+      <div class="card-corner" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <path class="corner-wave" d="M5,35 Q20,20 35,5" />
+        </svg>
+      </div>
+
+      <h2>Создать пользователя</h2>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_user">
+        <div class="form-row">
+          <label>
+            Логин
+            <input type="text" name="login" placeholder="username" required>
+          </label>
+          <label>
+            Пароль
+            <input type="password" name="password" placeholder="••••••••" required>
+          </label>
+          <label>
+            Роль
+            <select name="role">
+              <option value="u">Пользователь</option>
+              <option value="a">Администратор</option>
+              <option value="ua">Пользователь + Админ</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit" class="btn-submit">
+          Создать пользователя
+        </button>
+      </form>
+    </div>
+
+    <!-- Футер-инфо -->
+    <div class="footer-info">
+      <span>Обновлено: {% now "d.m.Y H:i:s" %}</span>
+      <span>Мониторинг: {% if metrics.cpu_percent is not None %}активен{% else %}недоступен{% endif %}</span>
+      <span>Redis: {% if metrics.redis_connected %}подключен{% elif metrics.redis_connected is None %}—{% else %}недоступен{% endif %}</span>
+    </div>
+
+    <!-- Декоративные звуковые линии -->
+    <div class="sound-lines" aria-hidden="true">
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+    </div>
+  </div>
+
+  <script>
+    // Мини-анимация при загрузке для карточек статистики
+    document.querySelectorAll('.stat-card').forEach((card, idx) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(8px)';
+      setTimeout(() => {
+        card.style.transition = 'all 0.4s ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, idx * 50);
+    });
+
+    // Подтверждение перед отключением пользователя
+    document.querySelectorAll('form button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (btn.textContent.includes('Откл.')) {
+          if (!confirm('Вы уверены, что хотите отключить этого пользователя?')) {
+            e.preventDefault();
+          }
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>

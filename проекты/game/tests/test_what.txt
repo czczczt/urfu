@@ -1,0 +1,233 @@
+TestPlayerHit()
+
+test_reduces_hp_by_damage
+Проверяет, что после удара здоровье уменьшается на величину урона.
+
+test_updates_hud
+Проверяет, что после получения урона обновляется отображение HP в HUD.
+
+test_returns_false_while_alive
+Проверяет, что метод hit() возвращает False, пока игрок жив.
+
+test_returns_true_on_death
+Проверяет, что метод hit() возвращает True при смерти игрока.
+
+test_hp_never_negative
+Проверяет, что здоровье не становится отрицательным после множества ударов.
+
+test_hp_clamped_exactly_zero_not_below
+Проверяет, что минимальное значение HP ограничено нулём.
+
+
+TestPlayerAnimation()
+
+test_frame_unchanged_before_threshold
+Проверяет, что кадр анимации не меняется до достижения порога времени переключения.
+
+test_frame_advances_on_threshold
+Проверяет, что кадр переключается после достижения порога анимации.
+
+test_count_resets_after_advance
+Проверяет, что счётчик анимации сбрасывается после смены кадра.
+
+test_frame_wraps_to_zero
+Проверяет циклическое переключение последнего кадра на первый.
+
+test_image_matches_current_frame
+Проверяет, что отображаемое изображение соответствует текущему кадру.
+
+test_out_of_range_frame_resets_to_zero
+Проверяет восстановление корректного индекса кадра при выходе за пределы массива.
+
+
+TestPlayerMovementBounds()
+
+test_does_not_move_up_past_bound
+Проверяет запрет выхода игрока за верхнюю границу экрана.
+
+test_does_not_move_down_past_bound
+Проверяет запрет выхода игрока за нижнюю границу экрана.
+
+test_opposite_horizontal_keys_cancel_movement
+Проверяет, что одновременное нажатие A и D не вызывает движение.
+
+test_moves_left_within_bounds
+Проверяет корректное движение игрока влево внутри допустимой области.
+
+
+TestMeteorSpawn()
+
+test_spawn_activates_one_slot
+Проверяет активацию одного слота пула при создании метеора.
+
+test_spawn_position_off_screen_right
+Проверяет появление нового метеора за правой границей экрана.
+
+test_spawn_does_nothing_when_pool_full
+Проверяет отсутствие создания новых метеоров при полностью занятом пуле.
+
+test_spawn_speed_scales_with_wave_count
+Проверяет влияние номера волны на скорость метеора.
+
+
+TestMeteorUpdate()
+
+test_inactive_slots_not_moved
+Проверяет, что неактивные метеоры не обновляют своё положение.
+
+test_active_slot_moves_left
+Проверяет движение активного метеора влево.
+
+test_slot_deactivates_off_screen_left
+Проверяет деактивацию метеора после выхода за левую границу экрана.
+
+test_wave_count_increments_after_interval
+Проверяет увеличение номера волны после истечения интервала между волнами.
+
+test_wave_spawns_meteors_on_spawn_interval
+Проверяет создание метеоров через заданный интервал спавна во время волны.
+
+test_wave_ends_after_duration
+Проверяет завершение волны после истечения её длительности.
+
+
+TestMeteorCollide()
+
+test_no_collision_when_no_active_slots
+Проверяет отсутствие столкновений при отсутствии активных метеоров.
+
+test_collision_deactivates_slot
+Проверяет деактивацию метеора после столкновения с игроком.
+
+test_collision_returns_false_when_no_overlap
+Проверяет корректный возврат False при отсутствии пересечения объектов.
+
+test_collision_stops_after_first_match
+Проверяет остановку поиска после обнаружения первого столкновения.
+
+
+TestMeteorScaledCache()
+
+test_same_size_uses_cache
+Проверяет повторное использование кэшированного изображения одного размера.
+
+test_different_size_creates_new_entry
+Проверяет создание нового кэшированного изображения для другого размера.
+
+
+TestMeteorDamage()
+
+test_no_damage_when_no_active_slots
+Проверяет, что урон не наносится при отсутствии активных метеоров.
+
+test_damage_reduces_hp
+Проверяет, что попадание пули уменьшает HP метеора на величину урона.
+
+test_damage_returns_true_on_overlap
+Проверяет возврат True при попадании пули в метеор.
+
+test_damage_returns_false_when_no_overlap
+Проверяет возврат False при отсутствии пересечения пули и метеора.
+
+test_slot_stays_active_while_hp_remains
+Проверяет, что метеор остаётся активным, пока его HP больше нуля.
+
+test_slot_deactivates_when_hp_reaches_zero
+Проверяет деактивацию метеора при падении HP до нуля.
+
+test_slot_deactivates_when_hp_drops_below_zero
+Проверяет деактивацию метеора при уходе HP в отрицательное значение.
+
+test_full_kill_requires_multiple_hits
+Проверяет, что уничтожение метеора требует нескольких попаданий обычной пулей.
+
+test_crit_damage_kills_faster
+Проверяет, что крит-урон уничтожает метеор за меньшее число попаданий.
+
+test_damage_stops_after_first_match
+Проверяет остановку поиска цели после первого попавшего метеора.
+
+
+TestBulletSpawn()
+
+test_spawn_activates_one_slot
+Проверяет активацию одного слота пула при выстреле.
+
+test_spawn_position_matches_player_center
+Проверяет появление пули в точке центра игрока.
+
+test_spawn_does_nothing_when_pool_full
+Проверяет отсутствие создания новых пуль при полностью занятом пуле.
+
+test_pool_size_matches_setting
+Проверяет соответствие размера пула значению из настроек.
+
+test_cannot_exceed_pool_size
+Проверяет, что число активных пуль не превышает лимит пула при множественных выстрелах.
+
+
+TestBulletUpdate()
+
+test_inactive_slots_not_moved
+Проверяет, что неактивные пули не обновляют своё положение.
+
+test_active_slot_moves_right
+Проверяет движение активной пули вправо.
+
+test_slot_deactivates_off_screen_right
+Проверяет деактивацию пули после выхода за правую границу экрана.
+
+
+TestBulletCrit()
+
+test_non_crit_uses_base_chance
+Проверяет создание обычной пули при низком текущем шансе крита.
+
+test_guaranteed_crit_when_chance_above_one
+Проверяет создание крит-пули при текущем шансе больше единицы.
+
+test_chance_resets_after_crit
+Проверяет сброс текущего шанса крита до базового значения после успеха.
+
+test_chance_increases_after_miss
+Проверяет увеличение текущего шанса крита на шаг C после промаха.
+
+
+TestPRD()
+
+test_initial_chance_equals_base
+Проверяет, что начальный текущий шанс равен базовому значению.
+
+test_check_returns_bool
+Проверяет, что метод check() возвращает булево значение.
+
+test_success_resets_to_base_chance
+Проверяет сброс текущего шанса до базового после успешной проверки.
+
+test_miss_increments_by_c
+Проверяет увеличение текущего шанса ровно на константу C после промаха.
+
+test_repeated_misses_increase_chance_monotonically
+Проверяет монотонный рост текущего шанса при серии промахов подряд.
+
+test_eventual_success_with_growing_chance
+Проверяет наступление успеха после роста шанса до значения, гарантирующего срабатывание.
+
+
+Всего у тебя покрыты 8 групп логики:
+
+Урон и смерть игрока (hit)
+
+Анимация игрока (animation)
+
+Движение и границы игрока (update)
+
+Создание и обновление метеоров (spawn, update)
+
+Коллизии и кэширование изображений (collide, get_scaled)
+
+HP и урон метеоров (damage)
+
+Создание, движение и лимит пула пуль (spawn, update)
+
+Pseudo Random Distribution для крита пуль (PRD.check)

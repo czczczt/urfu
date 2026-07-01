@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>История — ПротоСов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-light: #e2e8f0;
+      --accent-soft: #a8b5c9;
+      --accent-wave: #8a9fb5;
+      --accent-focus: #6b7c93;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #c53030;
+      --shadow-soft: 0 4px 20px rgba(45, 55, 72, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(138, 159, 181, 0.25);
+      --shadow-hover: 0 8px 30px rgba(107, 124, 147, 0.25);
+      --input-bg: #fafbfc;
+      --status-pending-bg: #fefcbf;
+      --status-pending-text: #854d0e;
+      --status-pending-dot: #ca8a04;
+      --status-processing-bg: #dbeafe;
+      --status-processing-text: #1e40af;
+      --status-processing-dot: #3b82f6;
+      --status-completed-bg: #dcfce7;
+      --status-completed-text: #15803d;
+      --status-completed-dot: #22c55e;
+      --status-failed-bg: #fee2e2;
+      --status-failed-text: #b91c1c;
+      --status-failed-dot: #ef4444;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Фоновая волна — декоративный элемент */
+    .wave-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .wave-bg svg {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: scaleX(-1);
+    }
+
+    .wave-path {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-dasharray: 12 8;
+      animation: waveFlow 18s linear infinite;
+    }
+
+    @keyframes waveFlow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -200; }
+    }
+
+    .wave-bg .wave-path:nth-child(2) {
+      stroke: var(--accent-wave);
+      stroke-width: 1;
+      stroke-dasharray: 8 12;
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    /* Хедер с лого и кнопкой */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 40px;
+      background: transparent;
+      border-bottom: none;
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo-wrap img {
+      width: min(280px, 60vw);
+      height: auto;
+      max-height: 80px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+      transition: transform 0.3s ease;
+    }
+
+    .logo-wrap img:hover {
+      transform: scale(1.02);
+    }
+
+    .header-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      padding: 10px 20px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .header-btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px 20px 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 20px 0 28px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(to bottom, var(--accent-soft), var(--accent-wave));
+      border-radius: 2px;
+    }
+
+    /* Фильтры в карточке */
+    .filters-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .filters-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        var(--accent-soft) 0%, 
+        var(--accent-wave) 25%, 
+        var(--accent-focus) 50%, 
+        var(--accent-wave) 75%, 
+        var(--accent-soft) 100%);
+      opacity: 0.9;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-left: 2px;
+    }
+
+    .filters input,
+    .filters select {
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .filters input:focus,
+    .filters select:focus {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+      background: #fff;
+    }
+
+    .filters input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+    .filters select option { background: var(--bg-card); color: var(--text-primary); }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 12px;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      transition-duration: 0.05s;
+    }
+
+    .btn-reset {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--accent-soft);
+      color: var(--text-primary);
+      background: var(--input-bg);
+    }
+
+    /* Список записей */
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 18px 22px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .item-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-soft), transparent);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .item-card:hover {
+      border-color: var(--accent-soft);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .item-card:hover::before {
+      opacity: 1;
+    }
+
+    .item-link {
+      display: grid;
+      grid-template-columns: 1fr 140px auto;
+      align-items: center;
+      gap: 20px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .item-name {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .item-name::before {
+      
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .item-date {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-pending {
+      background: var(--status-pending-bg);
+      color: var(--status-pending-text);
+      border: 1px solid #fcd34d;
+    }
+    .dot-pending { background: var(--status-pending-dot); }
+
+    .status-processing {
+      background: var(--status-processing-bg);
+      color: var(--status-processing-text);
+      border: 1px solid #93c5fd;
+    }
+    .dot-processing {
+      background: var(--status-processing-dot);
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-completed {
+      background: var(--status-completed-bg);
+      color: var(--status-completed-text);
+      border: 1px solid #86efac;
+    }
+    .dot-completed { background: var(--status-completed-dot); }
+
+    .status-failed {
+      background: var(--status-failed-bg);
+      color: var(--status-failed-text);
+      border: 1px solid #fca5a5;
+    }
+    .dot-failed { background: var(--status-failed-dot); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    /* Пустое состояние */
+    .empty {
+      padding: 48px 32px;
+      border: 2px dashed var(--border-light);
+      border-radius: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .empty-icon {
+      font-size: 40px;
+      opacity: 0.6;
+    }
+
+    .empty-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .empty-hint a {
+      color: var(--accent-focus);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .empty-hint a:hover {
+      text-decoration: underline;
+    }
+
+    /* Пагинация */
+    .pagination {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      padding: 9px 15px;
+      font-size: 13px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      min-width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-btn:hover {
+      border-color: var(--accent-soft);
+      color: var(--text-primary);
+      background: var(--input-bg);
+      transform: translateY(-1px);
+    }
+
+    .page-btn.active {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      border-color: var(--accent-focus);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(107, 124, 147, 0.3);
+    }
+
+    /* Декоративные звуковые линии */
+    .sound-lines {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 10px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border-light);
+    }
+
+    .sound-line {
+      width: 4px;
+      height: 14px;
+      background: linear-gradient(to top, var(--accent-soft), var(--accent-wave));
+      border-radius: 3px;
+      animation: soundWave 2.4s ease-in-out infinite;
+      opacity: 0.75;
+    }
+
+    .sound-line:nth-child(2) { animation-delay: -0.4s; height: 20px; }
+    .sound-line:nth-child(3) { animation-delay: -0.8s; height: 28px; }
+    .sound-line:nth-child(4) { animation-delay: -1.2s; height: 20px; }
+    .sound-line:nth-child(5) { animation-delay: -1.6s; height: 14px; }
+
+    @keyframes soundWave {
+      0%, 100% { transform: scaleY(1); opacity: 0.65; }
+      50% { transform: scaleY(1.7); opacity: 1; }
+    }
+
+    /* Маленький декоративный элемент в углу */
+    .card-corner {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .card-corner svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .corner-wave {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      animation: cornerPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.4; stroke-dashoffset: 0; }
+      50% { opacity: 0.8; stroke-dashoffset: -10; }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .filters {
+        flex-direction: column;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .filter-actions {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+      }
+
+      .item-link {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: center;
+      }
+
+      .item-date {
+        text-align: center;
+      }
+
+      .status {
+        justify-content: center;
+      }
+
+      .pagination {
+        justify-content: center;
+      }
+
+      h1 {
+        font-size: 24px;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .filters-card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .item-card {
+        padding: 16px 18px;
+        border-radius: 14px;
+      }
+
+      .item-name {
+        font-size: 14px;
+      }
+
+      .page-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: 32px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фоновые декоративные волны -->
+  <div class="wave-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave-path" d="M0,0 C150,40 350,20 600,30 C850,40 1050,10 1200,25 L1200,120 L0,120 Z" />
+      <path class="wave-path" d="M0,20 C200,60 400,30 600,45 C800,60 1000,25 1200,40 L1200,120 L0,120 Z" />
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo-wrap">
+      <img src="{% static 'logo.svg' %}" alt="ПротоСов">
+    </div>
+    <a href="{% url 'main' %}" class="header-btn">← На главную</a>
+  </header>
+
+  <div class="page">
+    <h1>История транскрипций</h1>
+
+    <div class="filters-card">
+      <form class="filters" method="get">
+        <div class="filter-group">
+          <label class="filter-label" for="name">Название</label>
+          <input type="text" id="name" name="name" placeholder="Встреча, видео..." value="{{ filters.name }}">
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="status">Статус</label>
+          <select id="status" name="status">
+            <option value="">Все статусы</option>
+            <option value="pending"    {% if filters.status == 'pending'    %}selected{% endif %}>Подготовка</option>
+            <option value="processing" {% if filters.status == 'processing' %}selected{% endif %}>Обработка</option>
+            <option value="completed"  {% if filters.status == 'completed'  %}selected{% endif %}>Завершено</option>
+            <option value="failed"     {% if filters.status == 'failed'     %}selected{% endif %}>Ошибка</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="date_start">С даты</label>
+          <input type="date" id="date_start" name="date_start" value="{{ filters.date_start }}">
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label" for="date_end">По дату</label>
+          <input type="date" id="date_end" name="date_end" value="{{ filters.date_end }}">
+        </div>
+        
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+            Найти
+          </button>
+          <a class="btn btn-reset" href="{% url 'history' %}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Сброс
+          </a>
+        </div>
+      </form>
+    </div>
+
+    {% if transcriptions %}
+      <div class="list">
+        {% for t in transcriptions %}
+          <div class="item-card">
+            <a class="item-link" href="{% url 'transcription' t.id %}">
+              <span class="item-name">{{ t.file.name }}.{{ t.file.extension }}</span>
+              <span class="item-date">
+                {% if t.execution_datetime %}
+                  {{ t.execution_datetime|date:"d.m.Y H:i" }}
+                {% else %}
+                  —
+                {% endif %}
+              </span>
+              {% if t.effective_status == 'pending' %}
+                <span class="status status-pending">
+                  <span class="status-dot dot-pending"></span>Подготовка
+                </span>
+              {% elif t.effective_status == 'processing' %}
+                <span class="status status-processing">
+                  <span class="status-dot dot-processing"></span>Обработка
+                </span>
+              {% elif t.effective_status == 'failed' %}
+                <span class="status status-failed">
+                  <span class="status-dot dot-failed"></span>Ошибка
+                </span>
+              {% else %}
+                <span class="status status-completed">
+                  <span class="status-dot dot-completed"></span>Завершено
+                </span>
+              {% endif %}
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if total_pages > 1 %}
+        <div class="pagination">
+          {% for p in page_range %}
+            <a class="page-btn {% if p == page %}active{% endif %}"
+               href="?page={{ p }}&name={{ filters.name }}&status={{ filters.status }}&date_start={{ filters.date_start }}&date_end={{ filters.date_end }}">
+              {{ p }}
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="empty">
+        <span class="empty-icon">📭</span>
+        <div>Транскрипций пока нет</div>
+        <div class="empty-hint">
+          <a href="{% url 'main' %}">Загрузите файл</a> для начала работы
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Декоративные звуковые линии внизу страницы -->
+    <div class="sound-lines" aria-hidden="true" style="margin-top: 40px;">
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+      <div class="sound-line"></div>
+    </div>
+  </div>
+
+  {% if transcriptions %}
+    <script>
+      if (document.querySelector('.status-pending, .status-processing')) {
+        setTimeout(() => location.reload(), 8000);
+      }
+    </script>
+  {% endif %}
+
+</body>
+</html>

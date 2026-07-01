@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Редактирование пользователя — ПротоСов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-light: #e2e8f0;
+      --accent-soft: #a8b5c9;
+      --accent-wave: #8a9fb5;
+      --accent-focus: #6b7c93;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #c53030;
+      --shadow-soft: 0 4px 20px rgba(45, 55, 72, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(138, 159, 181, 0.25);
+      --shadow-hover: 0 8px 30px rgba(107, 124, 147, 0.25);
+      --input-bg: #fafbfc;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      padding: 32px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Фоновая волна */
+    .wave-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .wave-bg svg {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: scaleX(-1);
+    }
+
+    .wave-path {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-dasharray: 12 8;
+      animation: waveFlow 18s linear infinite;
+    }
+
+    @keyframes waveFlow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -200; }
+    }
+
+    .wave-bg .wave-path:nth-child(2) {
+      stroke: var(--accent-wave);
+      stroke-width: 1;
+      stroke-dasharray: 8 12;
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Хедер с логотипом */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+      margin-bottom: 8px;
+    }
+
+    .brand-logo {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: none;
+      object-fit: contain;
+      display: block;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .header-btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Карточка-панель */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 32px 36px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        var(--accent-soft) 0%, 
+        var(--accent-wave) 25%, 
+        var(--accent-focus) 50%, 
+        var(--accent-wave) 75%, 
+        var(--accent-soft) 100%);
+      opacity: 0.9;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel h1::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(to bottom, var(--accent-soft), var(--accent-wave));
+      border-radius: 2px;
+    }
+
+    .panel-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      padding-left: 14px;
+    }
+
+    /* Форма */
+    .form-row {
+      display: grid;
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .label-inline {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+      background: #fff;
+    }
+
+    input[type="text"]:disabled {
+      background: var(--border-light);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent-focus);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 8px 4px;
+    }
+
+    .checkbox-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    /* Кнопки */
+    .submit-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px dashed var(--border-light);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      transition-duration: 0.05s;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+
+    .btn-secondary:hover {
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+
+    /* Декоративный уголок */
+    .card-corner {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .card-corner svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .corner-wave {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      animation: cornerPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.4; stroke-dashoffset: 0; }
+      50% { opacity: 0.8; stroke-dashoffset: -10; }
+    }
+
+    /* Звуковые линии */
+    .sound-lines {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-light);
+    }
+
+    .sound-line {
+      width: 4px;
+      height: 14px;
+      background: linear-gradient(to top, var(--accent-soft), var(--accent-wave));
+      border-radius: 3px;
+      animation: soundWave 2.4s ease-in-out infinite;
+      opacity: 0.75;
+    }
+
+    .sound-line:nth-child(2) { animation-delay: -0.4s; height: 20px; }
+    .sound-line:nth-child(3) { animation-delay: -0.8s; height: 28px; }
+    .sound-line:nth-child(4) { animation-delay: -1.2s; height: 20px; }
+    .sound-line:nth-child(5) { animation-delay: -1.6s; height: 14px; }
+
+    @keyframes soundWave {
+      0%, 100% { transform: scaleY(1); opacity: 0.65; }
+      50% { transform: scaleY(1.7); opacity: 1; }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 640px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .panel {
+        padding: 26px 22px;
+        border-radius: 18px;
+      }
+      .panel h1 {
+        font-size: 22px;
+      }
+      .submit-row {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .checkbox-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фоновые декоративные волны -->
+  <div class="wave-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave-path" d="M0,0 C150,40 350,20 600,30 C850,40 1050,10 1200,25 L1200,120 L0,120 Z" />
+      <path class="wave-path" d="M0,20 C200,60 400,30 600,45 C800,60 1000,25 1200,40 L1200,120 L0,120 Z" />
+    </svg>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <img src="{% static 'logo.svg' %}" alt="ПротоСов" class="brand-logo">
+      <div class="top-actions">
+        <a href="{% url 'admin_panel' %}" class="header-btn">← Админ-панель</a>
+        <a href="{% url 'logout' %}" class="header-btn">🚪 Выйти</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <!-- Декоративный уголок -->
+      <div class="card-corner" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <path class="corner-wave" d="M5,35 Q20,20 35,5" />
+        </svg>
+      </div>
+
+      <h1>Редактирование пользователя</h1>
+      <p class="panel-subtitle">Измените данные аккаунта {{ user_obj.login }}</p>
+
+      <form method="POST" action="{% url 'admin_user_edit' user_obj.id %}">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              Логин
+              <input type="text" value="{{ user_obj.login }}" disabled>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              Новый пароль
+              <input type="password" name="password" placeholder="Оставьте пустым, если не менять">
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              Роль
+              <select name="role">
+                <option value="u" {% if user_obj.role == 'u' %}selected{% endif %}>Пользователь</option>
+                <option value="a" {% if user_obj.role == 'a' %}selected{% endif %}>Администратор</option>
+                <option value="ua" {% if user_obj.role == 'ua' %}selected{% endif %}>Пользователь + Админ</option>
+              </select>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="submit-row">
+          <button class="btn btn-primary" type="submit">Сохранить изменения</button>
+          <a class="btn btn-secondary" href="{% url 'admin_panel' %}">Отменить</a>
+        </div>
+      </form>
+
+      <!-- Декоративные звуковые линии -->
+      <div class="sound-lines" aria-hidden="true">
+        <div class="sound-line"></div>
+        <div class="sound-line"></div>
+        <div class="sound-line"></div>
+        <div class="sound-line"></div>
+        <div class="sound-line"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

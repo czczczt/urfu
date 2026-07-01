@@ -1,0 +1,2 @@
+2026/06/03 00:47:17 [error] 14724#21160: *1 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET / HTTP/1.1", upstream: "http://127.0.0.1:8000/", host: "localhost"
+2026/06/03 00:49:39 [notice] 21456#2636: signal process started

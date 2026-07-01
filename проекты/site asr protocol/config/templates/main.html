@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ПротоСов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-light: #e2e8f0;
+      --accent-soft: #a8b5c9;
+      --accent-wave: #8a9fb5;
+      --accent-focus: #6b7c93;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #c53030;
+      --shadow-soft: 0 4px 20px rgba(45, 55, 72, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(138, 159, 181, 0.25);
+      --shadow-hover: 0 8px 30px rgba(107, 124, 147, 0.25);
+      --drop-bg: #fafbfc;
+      --drop-border: #e2e8f0;
+      --drop-hover: #f1f5f9;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Фоновая волна — декоративный элемент */
+    .wave-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .wave-bg svg {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: scaleX(-1);
+    }
+
+    .wave-path {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-dasharray: 12 8;
+      animation: waveFlow 18s linear infinite;
+    }
+
+    @keyframes waveFlow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -200; }
+    }
+
+    .wave-bg .wave-path:nth-child(2) {
+      stroke: var(--accent-wave);
+      stroke-width: 1;
+      stroke-dasharray: 8 12;
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 40px;
+      background: transparent;
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo-wrap img {
+      width: min(280px, 60vw);
+      height: auto;
+      max-height: 80px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+      transition: transform 0.3s ease;
+    }
+
+    .logo-wrap img:hover {
+      transform: scale(1.02);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      padding: 9px 16px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .header-btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .page {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 8px 20px 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .upload-card {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--accent-wave);
+      box-shadow: var(--shadow-soft);
+      border-radius: 20px;
+      animation: fadeUp 0.5s ease both;
+      position: relative;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .upload-card-header {
+      padding: 28px 36px 22px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .upload-card-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .upload-card-body {
+      padding: 32px 36px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--drop-border);
+      border-radius: 12px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      background: var(--drop-bg);
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent-soft);
+      background: var(--drop-hover);
+    }
+
+    .drop-zone.dragover {
+      border-color: var(--accent-wave);
+      background: linear-gradient(135deg, rgba(138,159,181,0.08), rgba(168,181,201,0.08));
+      animation: pulseBorder 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulseBorder {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(138, 159, 181, 0.2); }
+      50% { box-shadow: 0 0 0 6px rgba(138, 159, 181, 0); }
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .drop-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .file-chosen {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .file-chosen.active { display: flex; }
+
+    .file-chip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--drop-bg);
+      border: 1px solid var(--border-light);
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-weight: 500;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .file-chip:hover {
+      border-color: var(--accent-soft);
+      background: #fff;
+    }
+
+    .file-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-remove {
+      border: none;
+      background: var(--border-light);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      flex-shrink: 0;
+    }
+
+    .file-remove:hover {
+      background: var(--error-border);
+      color: var(--error-text);
+      transform: scale(1.05);
+    }
+
+    .uploading-msg {
+      display: none;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 10px;
+      background: var(--drop-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border-light);
+    }
+
+    .uploading-msg.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-upload {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-upload::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-upload:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-upload:hover::before {
+      left: 100%;
+    }
+
+    .btn-upload:active {
+      transform: translateY(0);
+      transition-duration: 0.05s;
+    }
+
+    .btn-upload:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--error-text);
+      text-align: center;
+      padding: 12px 16px;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      border-radius: 12px;
+      line-height: 1.4;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .header-right {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .upload-card { 
+        border-radius: 18px;
+      }
+      .upload-card-header,
+      .upload-card-body {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .upload-card-header h2 { font-size: 17px; }
+      .drop-zone { padding: 28px 16px; }
+      .drop-label { font-size: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фоновые декоративные волны -->
+  <div class="wave-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave-path" d="M0,0 C150,40 350,20 600,30 C850,40 1050,10 1200,25 L1200,120 L0,120 Z" />
+      <path class="wave-path" d="M0,20 C200,60 400,30 600,45 C800,60 1000,25 1200,40 L1200,120 L0,120 Z" />
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo-wrap">
+      <img src="{% static 'logo.svg' %}" alt="ПротоСов">
+    </div>
+    <div class="header-right">
+      {% if is_service_admin %}
+        <a href="{% url 'admin_panel' %}" class="header-btn">Админ</a>
+      {% endif %}
+      <a href="{% url 'history' %}" class="header-btn">История →</a>
+    </div>
+  </header>
+
+  <div class="page">
+    <div class="upload-card">
+      <div class="upload-card-header">
+        <h2>Загрузите аудио- или видеофайл для создания протокола</h2>
+      </div>
+      
+      <div class="upload-card-body">
+        <form method="POST" action="{% url 'load' %}" enctype="multipart/form-data" id="uploadForm">
+          {% csrf_token %}
+
+          {% if error %}
+            <div class="error-msg">{{ error }}</div>
+          {% endif %}
+
+          <div class="drop-zone" id="dropZone">
+            <input type="file" name="video" id="fileInput" accept=".mp4,.mkv,.avi,.mov,.webm,.mp3,.wav" multiple required>
+            <div class="drop-label">Нажмите или перетащите файлы</div>
+            <div class="drop-hint">MP4, MKV, AVI, MOV, MP3, WAV</div>
+          </div>
+
+          <div class="file-chosen" id="fileChosen"></div>
+          <div class="uploading-msg" id="uploadingMsg">Загрузка, подождите...</div>
+
+          <button type="submit" class="btn-upload">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Отправить
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileChosen = document.getElementById('fileChosen');
+    const dropZone = document.getElementById('dropZone');
+    const uploadingMsg = document.getElementById('uploadingMsg');
+    const uploadForm = document.getElementById('uploadForm');
+    const selectedFiles = [];
+
+    function syncFileInput() {
+      const dt = new DataTransfer();
+      selectedFiles.forEach(file => dt.items.add(file));
+      fileInput.files = dt.files;
+      fileInput.required = selectedFiles.length === 0;
+    }
+
+    function renderSelectedFiles() {
+      fileChosen.innerHTML = '';
+      if (!selectedFiles.length) {
+        fileChosen.classList.remove('active');
+        return;
+      }
+      fileChosen.classList.add('active');
+      selectedFiles.forEach((file, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+
+        const name = document.createElement('span');
+        name.className = 'file-name';
+        name.textContent = file.name;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'file-remove';
+        removeBtn.textContent = '×';
+        removeBtn.title = 'Убрать файл';
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedFiles.splice(index, 1);
+          syncFileInput();
+          renderSelectedFiles();
+        });
+
+        chip.appendChild(name);
+        chip.appendChild(removeBtn);
+        fileChosen.appendChild(chip);
+      });
+    }
+
+    function addFiles(files) {
+      for (const file of files) {
+        if (!selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+          selectedFiles.push(file);
+        }
+      }
+      syncFileInput();
+      renderSelectedFiles();
+    }
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        addFiles(fileInput.files);
+      } else {
+        syncFileInput();
+        renderSelectedFiles();
+      }
+    });
+
+    ['dragover','dragenter'].forEach(e => dropZone.addEventListener(e, ev => {
+      ev.preventDefault();
+      dropZone.classList.add('dragover');
+    }));
+    ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => {
+      ev.preventDefault();
+      dropZone.classList.remove('dragover');
+    }));
+    dropZone.addEventListener('drop', ev => {
+      if (ev.dataTransfer.files.length) {
+        addFiles(ev.dataTransfer.files);
+      }
+    });
+
+    uploadForm.addEventListener('submit', (ev) => {
+      if (!selectedFiles.length) {
+        ev.preventDefault();
+        return;
+      }
+      uploadingMsg.textContent = selectedFiles.length > 1
+        ? `Загрузка ${selectedFiles.length} файлов, подождите...`
+        : 'Загрузка, подождите...';
+      uploadingMsg.classList.add('active');
+    });
+
+    if (fileInput.files.length) {
+      addFiles(fileInput.files);
+    } else {
+      syncFileInput();
+      renderSelectedFiles();
+    }
+  </script>
+</body>
+</html>

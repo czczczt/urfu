@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ transcription.file.name }} — ПротоСов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {% if transcription.needs_poll %}
+  <meta http-equiv="refresh" content="8" />
+  {% endif %}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-light: #e2e8f0;
+      --accent-soft: #a8b5c9;
+      --accent-wave: #8a9fb5;
+      --accent-focus: #6b7c93;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --error-text: #c53030;
+      --shadow-soft: 0 4px 20px rgba(45, 55, 72, 0.08);
+      --shadow-focus: 0 0 0 3px rgba(138, 159, 181, 0.25);
+      --shadow-hover: 0 8px 30px rgba(107, 124, 147, 0.25);
+      --input-bg: #fafbfc;
+      --status-pending-bg: #fefcbf;
+      --status-pending-text: #854d0e;
+      --status-pending-dot: #ca8a04;
+      --status-processing-bg: #dbeafe;
+      --status-processing-text: #1e40af;
+      --status-processing-dot: #3b82f6;
+      --status-completed-bg: #dcfce7;
+      --status-completed-text: #15803d;
+      --status-completed-dot: #22c55e;
+      --status-failed-bg: #fee2e2;
+      --status-failed-text: #b91c1c;
+      --status-failed-dot: #ef4444;
+      --segment-hover: #f8fafc;
+      --segment-active: #f1f5f9;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Фоновая волна — декоративный элемент */
+    .wave-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .wave-bg svg {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: auto;
+      transform: scaleX(-1);
+    }
+
+    .wave-path {
+      fill: none;
+      stroke: var(--accent-soft);
+      stroke-width: 1.5;
+      stroke-dasharray: 12 8;
+      animation: waveFlow 18s linear infinite;
+    }
+
+    @keyframes waveFlow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -200; }
+    }
+
+    .wave-bg .wave-path:nth-child(2) {
+      stroke: var(--accent-wave);
+      stroke-width: 1;
+      stroke-dasharray: 8 12;
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+    }
+
+    /* Хедер */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 40px;
+      background: transparent;
+      border-bottom: none;
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo-wrap img {
+      width: min(280px, 60vw);
+      height: auto;
+      max-height: 80px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+      transition: transform 0.3s ease;
+    }
+
+    .logo-wrap img:hover { transform: scale(1.02); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .header-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Manrope', sans-serif;
+      padding: 9px 16px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+    }
+
+    .header-btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .header-btn.btn-danger {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border-color: var(--error-border);
+    }
+
+    .header-btn.btn-danger:hover {
+      background: var(--error-text);
+      color: #fff;
+      border-color: var(--error-text);
+    }
+
+    .header-muted {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 16px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 20px 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Карточка заголовка — теперь не липкая */
+    .header-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--accent-wave);
+      border-radius: 20px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+    }
+
+    .meta {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      word-break: break-all;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .transcription-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .status-line {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 16px 0 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .status-line span { display: inline-flex; align-items: center; }
+
+    .status-line[style*="#ca8a04"] { background: var(--status-pending-bg); color: var(--status-pending-text); border: 1px solid #fcd34d; }
+    .status-line[style*="#3b82f6"] { background: var(--status-processing-bg); color: var(--status-processing-text); border: 1px solid #93c5fd; }
+    .status-line[style*="#16a34a"] { background: var(--status-completed-bg); color: var(--status-completed-text); border: 1px solid #86efac; }
+    .status-line[style*="#dc2626"] { background: var(--status-failed-bg); color: var(--status-failed-text); border: 1px solid #fca5a5; }
+
+    /* Медиа-плеер в карточке */
+    .media-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 4px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      position: relative;
+    }
+
+    video, audio {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+      background: var(--input-bg);
+    }
+
+    video { max-height: 440px; }
+
+    /* Панель доступа */
+    .access-panel {
+      margin-top: 12px;
+      padding: 14px 18px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .access-panel .row {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .access-panel .row:last-child { margin-bottom: 0; }
+
+    .access-panel .label {
+      min-width: 110px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .access-panel .value { color: var(--text-primary); font-weight: 500; word-break: break-word; }
+
+    /* Уведомления */
+    .notice {
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      border-radius: 12px;
+      border: 1px solid;
+    }
+
+    .notice-info {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d5fcc;
+    }
+
+    .notice-error {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    /* Переключатель режимов */
+    .mode-switcher {
+      display: inline-flex;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      background: var(--bg-card);
+      margin: 14px 0 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mode-switcher button {
+      border: 0;
+      background: transparent;
+      padding: 10px 16px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-switcher button.active {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+    }
+
+    .mode-switcher button:hover:not(.active) {
+      background: var(--input-bg);
+      color: var(--text-primary);
+    }
+
+    /* Панели пересказа */
+    .summary-panel {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .summary-panel.active { display: block; animation: fadeUp 0.4s ease both; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .summary-panel > :first-child { margin-top: 0 !important; padding-top: 0 !important; }
+    .summary-panel > :last-child { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+
+    .summary-panel h1, .summary-panel h2, .summary-panel h3, .summary-panel h4 {
+      margin: 0 0 12px;
+      line-height: 1.35;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .summary-panel h1 { font-size: 22px; }
+    .summary-panel h2 { font-size: 18px; }
+    .summary-panel h3 { font-size: 16px; }
+    .summary-panel h4 { font-size: 14px; }
+
+    .summary-panel p { margin: 0 0 12px; white-space: pre-wrap; }
+
+    .summary-panel ul, .summary-panel ol {
+      margin: 0 0 16px;
+      padding-left: 24px;
+      list-style-position: outside;
+    }
+
+    .summary-panel li { margin: 0 0 6px; line-height: 1.6; }
+
+    .summary-plain { white-space: pre-wrap; }
+
+    /* Тулбар с фильтрами спикеров */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .speakers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .speaker-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      user-select: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .speaker-badge:hover {
+      border-color: var(--accent-soft);
+      background: var(--bg-card);
+      transform: translateY(-1px);
+    }
+
+    .speaker-badge.hidden {
+      opacity: 0.4;
+      filter: grayscale(0.6);
+    }
+
+    .speaker-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .speaker-rename {
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 11px;
+      transition: color 0.15s;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .speaker-rename:hover {
+      color: var(--accent-focus);
+      background: var(--input-bg);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+    }
+
+    .btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--accent-soft);
+      color: #fff;
+      border-color: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .btn-danger {
+      background: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+      font-size: 13px;
+      padding: 9px 16px;
+    }
+
+    .btn-danger:hover {
+      background: var(--error-text);
+      color: #fff;
+      border-color: var(--error-text);
+    }
+
+    /* Сегменты транскрипции — карточки в потоке */
+    .segments {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .segment {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    .segment:hover {
+      border-color: var(--accent-soft);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .segment.active {
+      border-color: var(--accent-focus);
+      background: var(--segment-active);
+      box-shadow: 0 0 0 3px rgba(107, 124, 147, 0.15);
+    }
+
+    .segment.hidden { display: none; }
+
+    .seg-meta {
+      padding: 14px 16px;
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--input-bg);
+    }
+
+    .seg-speaker {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+    }
+
+    .seg-time {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    .seg-time span {
+      cursor: pointer;
+      transition: color 0.15s;
+      font-weight: 500;
+    }
+
+    .seg-time span:hover { color: var(--accent-focus); }
+
+    .seg-text {
+      padding: 14px 20px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text-primary);
+    }
+
+    /* Режим редактирования */
+    .edit-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      border: 1px solid var(--border-light);
+      background: var(--input-bg);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .edit-row:focus-within {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .edit-meta {
+      padding: 12px 14px;
+      border-right: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg-card);
+    }
+
+    .edit-body { padding: 12px 16px; }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Manrope', sans-serif;
+      outline: none;
+      resize: vertical;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+      background: #fff;
+    }
+
+    textarea { min-height: 60px; line-height: 1.5; }
+
+    .save-row {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+    }
+
+    .save-row-actions { display: flex; justify-content: flex-end; }
+
+    .save-speaker-option {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.45;
+    }
+
+    .save-speaker-option input {
+      margin-top: 3px;
+      flex-shrink: 0;
+      width: auto;
+    }
+
+    /* Модальные окна */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 55, 72, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--accent-wave);
+      padding: 28px 32px;
+      min-width: 360px;
+      max-width: 480px;
+      width: 100%;
+      border-radius: 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 20px 60px rgba(45, 55, 72, 0.25);
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-box.modal-wide {
+      min-width: 420px;
+      max-width: 640px;
+    }
+
+    .modal-box.modal-share {
+      min-width: 400px;
+      max-width: 520px;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'Manrope', sans-serif;
+      outline: none;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .modal-input.modal-textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .modal-input:focus {
+      border-color: var(--accent-focus);
+      box-shadow: var(--shadow-focus);
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .modal-cancel {
+      padding: 10px 18px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-cancel:hover {
+      background: var(--bg-card);
+      border-color: var(--accent-soft);
+      color: var(--text-primary);
+    }
+
+    .modal-confirm {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, var(--accent-wave), var(--accent-focus));
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-confirm:hover {
+      background: linear-gradient(135deg, var(--accent-focus), #5a6b82);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .modal-error {
+      display: none;
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+      padding: 10px 14px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      header {
+        padding: 20px 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .header-right {
+        justify-content: center;
+        width: 100%;
+      }
+
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .segment {
+        grid-template-columns: 1fr;
+      }
+
+      .seg-meta {
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .edit-row {
+        grid-template-columns: 1fr;
+      }
+
+      .edit-meta {
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .modal-box,
+      .modal-box.modal-wide,
+      .modal-box.modal-share {
+        min-width: auto;
+        width: calc(100% - 20px);
+        max-width: 100%;
+        margin: 0 10px;
+        padding: 24px 20px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .header-card, .media-card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      h1 { font-size: 20px; }
+
+      .segment, .edit-row {
+        border-radius: 12px;
+      }
+
+      .seg-meta, .edit-meta {
+        padding: 12px;
+      }
+
+      .seg-text, .edit-body {
+        padding: 12px 16px;
+      }
+
+      .btn {
+        padding: 9px 14px;
+        font-size: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Фоновые декоративные волны -->
+  <div class="wave-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path class="wave-path" d="M0,0 C150,40 350,20 600,30 C850,40 1050,10 1200,25 L1200,120 L0,120 Z" />
+      <path class="wave-path" d="M0,20 C200,60 400,30 600,45 C800,60 1000,25 1200,40 L1200,120 L0,120 Z" />
+    </svg>
+  </div>
+
+  <header>
+    <div class="logo-wrap">
+      <img src="{% static 'logo.svg' %}" alt="ПротоСов">
+    </div>
+    <div class="header-right">
+      {% if can_start_transcription %}
+        <a href="javascript:void(0)" onclick="startTranscription()" class="header-btn">Транскрибация</a>
+      {% endif %}
+      {% if transcription.effective_status == 'completed' %}
+      <a href="{% url 'export_transcription' transcription.id %}" class="header-btn">Экспорт</a>
+      {% endif %}
+      {% if can_edit %}
+        {% if transcription.effective_status == 'completed' or transcription.status == 'failed' %}
+          <a href="javascript:void(0)" onclick="openMeta()" class="header-btn">Название</a>
+          <a href="javascript:void(0)" onclick="openShare()" class="header-btn">Доступ</a>
+        {% endif %}
+        {% if can_show_protocol_button %}
+          {% if can_start_protocol %}
+            <a href="javascript:void(0)" onclick="startProtocol()" class="header-btn">
+              {% if transcription.protocol_status == 'failed' %}Повторить
+              {% elif transcription.protocol_status == 'completed' or has_protocol %}Переотправить
+              {% else %}GigaChat{% endif %}
+            </a>
+          {% else %}
+            <span class="header-muted">GigaChat…</span>
+          {% endif %}
+        {% endif %}
+        <form method="post" action="{% url 'delete_transcription' transcription.id %}" style="display:inline;"
+              onsubmit="return confirm(this.getAttribute('data-confirm'));"
+              data-confirm="{% if transcription.status == 'pending' or transcription.status == 'processing' %}Отменить транскрибацию? Видео и записи будут удалены.{% else %}Удалить транскрипцию и видео?{% endif %}">
+          {% csrf_token %}
+          <button type="submit" class="header-btn btn-danger">{% if transcription.status == 'pending' or transcription.status == 'processing' %}Отменить{% else %}Удалить{% endif %}</button>
+        </form>
+      {% endif %}
+      <a href="{% url 'history' %}" class="header-btn">← История</a>
+    </div>
+  </header>
+
+  <div class="page">
+    <div id="actionNotice" class="notice" style="display:none;"></div>
+    
+    <!-- Карточка заголовка — теперь в потоке, не липкая -->
+    <div class="header-card">
+      <div class="meta">
+        {{ transcription.id }} | {{ transcription.execution_datetime|date:"d.m.Y H:i" }}{% if transcription.edit_datetime %} • изм. {{ transcription.edit_datetime|date:"d.m.Y H:i" }}{% endif %}
+      </div>
+      
+      <div class="title-row">
+        <h1 id="videoTitle" data-base-name="{{ transcription.file.name }}">{{ transcription.file.name }}.{{ transcription.file.extension }}</h1>
+      </div>
+      
+      {% if transcription.protocol_status == 'processing' %}
+        <div class="transcription-desc" id="transcriptionDesc">Формируется протокол GigaChat…</div>
+      {% elif transcription.description %}
+        <div class="transcription-desc" id="transcriptionDesc">{{ transcription.description }}</div>
+      {% elif protocol and protocol.brief_text %}
+        <div class="transcription-desc" id="transcriptionDesc">{{ protocol.brief_text }}</div>
+      {% else %}
+        <div class="transcription-desc" id="transcriptionDesc" style="display:none;"></div>
+      {% endif %}
+
+      {% if view_others or edit_others %}
+        <div class="access-panel" id="accessPanel">
+          <div class="row">
+            <div class="label">Владелец:</div>
+            <div class="value">{{ owner_login }}</div>
+          </div>
+          {% if view_others %}
+            <div class="row" style="margin-top:6px;">
+              <div class="label">Просмотр:</div>
+              <div class="value">{{ view_others|join:", " }}</div>
+            </div>
+          {% endif %}
+          {% if edit_others %}
+            <div class="row" style="margin-top:6px;">
+              <div class="label">Редактирование:</div>
+              <div class="value">{{ edit_others|join:", " }}</div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+      
+      <div class="status-line">
+        {% if transcription.effective_status == 'pending' %}<span style="color:#ca8a04;">Подготовка</span>
+        {% elif transcription.effective_status == 'processing' %}<span style="color:#3b82f6;">Обработка</span>
+        {% elif transcription.effective_status == 'completed' %}<span style="color:#16a34a;">Завершено</span>
+        {% elif transcription.effective_status == 'failed' %}<span style="color:#dc2626;">Ошибка</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Видео-плеер — в потоке -->
+    {% if transcription.file.extension == 'mp3' or transcription.file.extension == 'wav' %}
+      <div class="media-card">
+        <audio id="player" controls src="{% url 'video' transcription.file.id %}"></audio>
+      </div>
+    {% else %}
+      <div class="media-card">
+        <video id="player" controls src="{% url 'video' transcription.file.id %}"></video>
+      </div>
+    {% endif %}
+
+    <!-- Статусные сообщения -->
+    {% if transcription.effective_status == 'pending' or transcription.effective_status == 'processing' %}
+      <div class="notice notice-info">Видео обрабатывается. Текст появится после завершения.</div>
+    {% elif transcription.effective_status == 'failed' %}
+      <div class="notice notice-error">
+        Результаты не получены.
+        {% if can_start_transcription %} Нажмите «Транскрибация» в шапке страницы.{% endif %}
+      </div>
+    {% else %}
+      <!-- Переключатель режимов -->
+      <div class="mode-switcher" id="modeSwitcher">
+        <button type="button" class="active" data-mode="transcript">Транскрибация</button>
+        <button type="button" data-mode="recap">Пересказ</button>
+        <button type="button" data-mode="timeline">По абзацам</button>
+      </div>
+
+      <!-- Тулбар с фильтрами спикеров -->
+      <div id="transcriptHeadBar">
+        {% if can_edit %}
+          <form id="transcriptEditForm" class="transcript-head-form" method="post">
+            {% csrf_token %}
+            <div class="toolbar">
+              <div class="speakers" id="speakerFilter">
+                {% for sp in speakers %}
+                  <div class="speaker-badge" data-speaker="{{ sp }}">
+                    <span class="speaker-toggle" onclick="toggleSpeaker(this.closest('.speaker-badge'))">
+                      <span class="dot"></span>{{ sp }}
+                    </span>
+                    <span class="speaker-rename" onclick="openRename('{{ sp }}')">✎</span>
+                  </div>
+                {% endfor %}
+              </div>
+              <button type="button" class="btn" id="editBtn" onclick="toggleEdit()">Редактировать</button>
+            </div>
+            <div id="editSaveBar" class="save-row" style="display:none;">
+              <label class="save-speaker-option">
+                <input type="checkbox" name="speaker_rename_all" value="1" checked>
+                <span>Переименовать все реплики с тем же исходным спикером. Если снять галочку — новое имя применится только к изменённым строкам.</span>
+              </label>
+              <div class="save-row-actions">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+              </div>
+            </div>
+          </form>
+        {% else %}
+          <div class="toolbar">
+            <div class="speakers" id="speakerFilter">
+              {% for sp in speakers %}
+                <div class="speaker-badge" data-speaker="{{ sp }}">
+                  <span class="speaker-toggle" onclick="toggleSpeaker(this.closest('.speaker-badge'))">
+                    <span class="dot"></span>{{ sp }}
+                  </span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Панели пересказа -->
+      <div id="panel-recap" class="summary-panel">
+        {% if transcription.protocol_status == 'processing' %}
+          Протоколирование выполняется. Обновите страницу через несколько секунд.
+        {% elif protocol and protocol.protocol_text %}
+          {{ protocol_html }}
+        {% elif transcription.protocol_status == 'failed' %}
+          Протокол не сформирован. Запустите протоколирование повторно.
+        {% else %}
+          Пересказ встречи пока не сформирован.
+        {% endif %}
+      </div>
+      <div id="panel-timeline" class="summary-panel">
+        {% if transcription.protocol_status == 'processing' %}
+          Протоколирование выполняется. Обновите страницу через несколько секунд.
+        {% elif protocol and protocol.compressed_text %}
+          {{ timeline_html }}
+        {% elif transcription.protocol_status == 'failed' %}
+          Пересказ по абзацам не сформирован. Запустите протоколирование повторно.
+        {% else %}
+          Пересказ по абзацам пока не сформирован.
+        {% endif %}
+      </div>
+
+      <!-- Транскрипция — в потоке, прокручивается вместе с видео -->
+      <div id="panel-transcript">
+        <div id="viewMode">
+          <div class="segments" id="feed">
+            {% for seg in results %}
+              <div class="segment" data-speaker="{{ seg.speaker }}" data-start="{{ seg.phrase_start_time }}" data-end="{{ seg.phrase_end_time }}">
+                <div class="seg-meta">
+                  {% if seg.show_speaker %}
+                    <span class="seg-speaker">{{ seg.speaker }}</span>
+                  {% endif %}
+                  <span class="seg-time">
+                    <span class="ts" data-sec="{{ seg.phrase_start_time }}" onclick="seekTo(parseFloat('{{ seg.phrase_start_time }}'))"></span><br>
+                    <span class="ts" data-sec="{{ seg.phrase_end_time }}"   onclick="seekTo(parseFloat('{{ seg.phrase_end_time }}'))"></span>
+                  </span>
+                </div>
+                <div class="seg-text">{{ seg.text }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if can_edit %}
+          <div id="editMode" style="display:none;">
+            <div class="segments">
+              {% for seg in results %}
+                <div class="edit-row">
+                  <div class="edit-meta">
+                    <input type="text" form="transcriptEditForm" name="speaker_{{ seg.id }}" value="{{ seg.speaker }}" placeholder="Спикер">
+                    <input type="text" form="transcriptEditForm" name="start_{{ seg.id }}"   value="{{ seg.phrase_start_time }}" placeholder="Начало">
+                    <input type="text" form="transcriptEditForm" name="end_{{ seg.id }}"     value="{{ seg.phrase_end_time }}"   placeholder="Конец">
+                  </div>
+                  <div class="edit-body">
+                    <textarea form="transcriptEditForm" name="text_{{ seg.id }}">{{ seg.text }}</textarea>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Модальное окно: переименование спикера -->
+  <div class="modal-overlay" id="renameModal">
+    <div class="modal-box">
+      <div class="modal-title">Переименовать спикера</div>
+      <input class="modal-input" id="renameNew" type="text" placeholder="Новое имя">
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeRename()">Отмена</button>
+        <button class="modal-confirm" onclick="submitRename()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <form id="renameForm" method="post" action="{% url 'rename_speaker' transcription.id %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="old_name" id="renameFormOld">
+    <input type="hidden" name="new_name" id="renameFormNew">
+  </form>
+
+  <!-- Модальное окно: доступ -->
+  <div class="modal-overlay" id="shareModal">
+    <div class="modal-box modal-share">
+      <div class="modal-title">Открыть доступ</div>
+      <input class="modal-input" id="shareLogin" type="text" placeholder="Логин пользователя">
+      <select class="modal-input" id="sharePermission">
+        <option value="view">Просмотр</option>
+        <option value="edit">Редактирование</option>
+      </select>
+      <div class="modal-error" id="shareError"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeShare()">Отмена</button>
+        <button class="modal-confirm" onclick="submitShare()">Выдать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: название и описание -->
+  <div class="modal-overlay" id="metaModal">
+    <div class="modal-box modal-wide">
+      <div class="modal-title">Название встречи и описание</div>
+      <input class="modal-input" id="metaName" type="text" placeholder="Название встречи" value="{{ transcription.file.name|default:'' }}">
+      <textarea class="modal-input modal-textarea" id="metaDesc" placeholder="Описание">{{ transcription.description|default:'' }}</textarea>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeMeta()">Отмена</button>
+        <button class="modal-confirm" onclick="submitMeta()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const COLORS = ['#6366f1','#16a34a','#ea580c','#0891b2','#9333ea'];
+    const speakerMap = {};
+
+    document.querySelectorAll('.speaker-badge').forEach((badge, i) => {
+      const color = COLORS[i % COLORS.length];
+      speakerMap[badge.dataset.speaker] = color;
+      badge.querySelector('.dot').style.background = color;
+    });
+
+    document.querySelectorAll('.seg-speaker').forEach(el => {
+      const sp = el.closest('.segment').dataset.speaker;
+      el.style.color = speakerMap[sp] ?? '#111';
+    });
+
+    function formatTime(seconds) {
+      const total = Math.floor(seconds);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      const mm = String(m).padStart(2, '0');
+      const ss = String(s).padStart(2, '0');
+      return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+    }
+
+    document.querySelectorAll('.ts').forEach(el => {
+      el.textContent = formatTime(parseFloat(el.dataset.sec));
+    });
+
+    const activeSpeakers = new Set();
+
+    function applySpeakerFilter() {
+      const hasFilter = activeSpeakers.size > 0;
+
+      document.querySelectorAll('.speaker-badge').forEach(badge => {
+        const sp = badge.dataset.speaker;
+        const selected = activeSpeakers.has(sp);
+        badge.classList.toggle('hidden', hasFilter && !selected);
+      });
+
+      document.querySelectorAll('.segment').forEach(seg => {
+        const sp = seg.dataset.speaker;
+        const show = !hasFilter || activeSpeakers.has(sp);
+        seg.classList.toggle('hidden', !show);
+      });
+    }
+
+    function toggleSpeaker(badge) {
+      const sp = badge.dataset.speaker;
+      if (activeSpeakers.has(sp)) activeSpeakers.delete(sp);
+      else activeSpeakers.add(sp);
+      applySpeakerFilter();
+    }
+
+    function toggleEdit() {
+      const view = document.getElementById('viewMode');
+      const edit = document.getElementById('editMode');
+      const btn  = document.getElementById('editBtn');
+      const saveBar = document.getElementById('editSaveBar');
+      if (!view || !edit || !btn) return;
+      if (edit.style.display === 'none') {
+        view.style.display = 'none';
+        edit.style.display = 'block';
+        btn.textContent = 'Просмотр';
+        if (saveBar) saveBar.style.display = 'flex';
+      } else {
+        view.style.display = 'block';
+        edit.style.display = 'none';
+        btn.textContent = 'Редактировать';
+        if (saveBar) saveBar.style.display = 'none';
+      }
+    }
+
+    function seekTo(seconds) {
+      const video = document.getElementById('player');
+      if (!video) return;
+      const doSeek = () => { video.currentTime = seconds; video.play(); };
+      if (video.readyState >= 2) doSeek();
+      else video.addEventListener('loadedmetadata', doSeek, { once: true });
+    }
+
+    const video = document.getElementById('player');
+    if (video) {
+      video.addEventListener('timeupdate', () => {
+        const t = video.currentTime;
+        document.querySelectorAll('.segment:not(.hidden)').forEach(seg => {
+          const start = parseFloat(seg.dataset.start);
+          const end   = parseFloat(seg.dataset.end);
+          seg.classList.toggle('active', t >= start && t <= end);
+        });
+      });
+    }
+
+    applySpeakerFilter();
+
+    function setTextMode(mode) {
+      const transcript = document.getElementById('panel-transcript');
+      const recap = document.getElementById('panel-recap');
+      const timeline = document.getElementById('panel-timeline');
+      const headBar = document.getElementById('transcriptHeadBar');
+      if (transcript) transcript.style.display = mode === 'transcript' ? 'block' : 'none';
+      if (recap) recap.classList.toggle('active', mode === 'recap');
+      if (timeline) timeline.classList.toggle('active', mode === 'timeline');
+      if (headBar) headBar.style.display = mode === 'transcript' ? 'block' : 'none';
+      if (mode !== 'transcript') {
+        const view = document.getElementById('viewMode');
+        const edit = document.getElementById('editMode');
+        const editBtn = document.getElementById('editBtn');
+        const saveBar = document.getElementById('editSaveBar');
+        if (view && edit && edit.style.display !== 'none') {
+          view.style.display = 'block';
+          edit.style.display = 'none';
+          if (editBtn) editBtn.textContent = 'Редактировать';
+          if (saveBar) saveBar.style.display = 'none';
+        }
+      }
+      document.querySelectorAll('#modeSwitcher button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+
+    document.querySelectorAll('#modeSwitcher button').forEach(btn => {
+      btn.addEventListener('click', () => setTextMode(btn.dataset.mode));
+    });
+
+    let renameOldValue = '';
+
+    function openRename(speaker) {
+      renameOldValue = speaker;
+      document.getElementById('renameNew').value = speaker;
+      document.getElementById('renameModal').classList.add('open');
+      document.getElementById('renameNew').focus();
+      document.getElementById('renameNew').select();
+    }
+
+    function closeRename() {
+      document.getElementById('renameModal').classList.remove('open');
+    }
+
+    function submitRename() {
+      const nw = document.getElementById('renameNew').value.trim();
+      if (!nw) return;
+      document.getElementById('renameFormOld').value = renameOldValue;
+      document.getElementById('renameFormNew').value = nw;
+      document.getElementById('renameForm').submit();
+    }
+
+    document.getElementById('renameNew').addEventListener('keydown', e => {
+      if (e.key === 'Enter')  submitRename();
+      if (e.key === 'Escape') closeRename();
+    });
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return '';
+    }
+
+    function showNotice(type, msg) {
+      const el = document.getElementById('actionNotice');
+      el.className = `notice ${type === 'error' ? 'notice-error' : 'notice-info'}`;
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(showNotice._t);
+      showNotice._t = setTimeout(() => { el.style.display = 'none'; }, 6500);
+    }
+
+    function openShare() {
+      document.getElementById('shareLogin').value = '';
+      document.getElementById('sharePermission').value = 'view';
+      const err = document.getElementById('shareError');
+      err.textContent = '';
+      err.style.display = 'none';
+      document.getElementById('shareModal').classList.add('open');
+      document.getElementById('shareLogin').focus();
+    }
+    function closeShare() {
+      document.getElementById('shareModal').classList.remove('open');
+      const err = document.getElementById('shareError');
+      err.textContent = '';
+      err.style.display = 'none';
+    }
+
+    async function submitShare() {
+      const login = document.getElementById('shareLogin').value.trim();
+      const permission = document.getElementById('sharePermission').value;
+      const err = document.getElementById('shareError');
+      err.textContent = '';
+      err.style.display = 'none';
+      try {
+        const resp = await fetch("{% url 'share_transcription' transcription.id %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: new URLSearchParams({ login, permission }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error || 'Ошибка');
+        closeShare();
+        showNotice('info', 'Доступ выдан.');
+        setTimeout(() => location.reload(), 350);
+      } catch (e) {
+        const msg = String(e.message || e);
+        err.textContent = msg;
+        err.style.display = 'block';
+        document.getElementById('shareLogin').focus();
+      }
+    }
+
+    function openMeta() {
+      const titleEl = document.getElementById('videoTitle');
+      document.getElementById('metaName').value = (titleEl.dataset.baseName || '').trim() || '{{ transcription.file.name|default:"" }}';
+      document.getElementById('metaDesc').value = (document.getElementById('transcriptionDesc').textContent || '').trim();
+      document.getElementById('metaModal').classList.add('open');
+      document.getElementById('metaName').focus();
+      document.getElementById('metaName').select();
+    }
+    function closeMeta() { document.getElementById('metaModal').classList.remove('open'); }
+
+    async function submitMeta() {
+      const name = document.getElementById('metaName').value.trim();
+      const description = document.getElementById('metaDesc').value.trim();
+      try {
+        const resp = await fetch("{% url 'edit_transcription_name' transcription.id %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: new URLSearchParams({ name, description }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error || 'Ошибка');
+        const titleEl = document.getElementById('videoTitle');
+        titleEl.dataset.baseName = name;
+        titleEl.textContent = `${name}.{{ transcription.file.extension }}`;
+        document.title = `${name} — ПротоСов`;
+        const descEl = document.getElementById('transcriptionDesc');
+        if (description) {
+          descEl.textContent = description;
+          descEl.style.display = 'block';
+        } else {
+          descEl.textContent = '';
+          descEl.style.display = 'none';
+        }
+        closeMeta();
+        showNotice('info', 'Сохранено.');
+      } catch (e) {
+        showNotice('error', String(e.message || e));
+      }
+    }
+
+    async function startTranscription() {
+      try {
+        const resp = await fetch("{% url 'start_transcription' transcription.id %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error || 'Ошибка');
+        showNotice('info', 'Транскрибация запущена (WhisperX).');
+        setTimeout(() => location.reload(), 1200);
+      } catch (e) {
+        showNotice('error', String(e.message || e));
+      }
+    }
+
+    async function startProtocol() {
+      try {
+        const resp = await fetch("{% url 'start_protocol' transcription.id %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) throw new Error(data.error || 'Ошибка');
+        showNotice('info', 'Транскрибация отправлена в GigaChat. Страница обновится, когда протокол будет готов.');
+        location.reload();
+      } catch (e) {
+        showNotice('error', String(e.message || e));
+      }
+    }
+  </script>
+</body>
+</html>
