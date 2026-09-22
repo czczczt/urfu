@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
         int words = 'L';
-        long f = 'n';
+        char f = 'n';
         char d = 'o';
         double x = 323.7493710825692379;
         String value = "воздушный шарик";
